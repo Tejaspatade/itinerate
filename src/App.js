@@ -1,10 +1,15 @@
 import React, { useState } from "react";
 
+import Logo from "./components/Logo";
+import Form from "./components/Form";
+import PackingList from "./components/PackingList";
+import Stats from "./components/Stats";
+
 const App = () => {
 	// State Lifted up from Form
 	const [items, setItems] = useState([]);
 
-	// Handle adding nee item
+	// Handle Adding nee item
 	const handleAddItem = (item) => {
 		setItems((c) => [...c, item]);
 	};
@@ -21,6 +26,13 @@ const App = () => {
 		);
 	};
 
+	const handleReset = () => {
+		const confirm = window.confirm(
+			"🔴🔴Do You Really Want to Clear the Itinery?🔴🔴"
+		);
+		if (confirm) setItems([]);
+	};
+
 	return (
 		<div className="app">
 			<Logo />
@@ -29,123 +41,10 @@ const App = () => {
 				items={items}
 				onDeleteItem={handleRemoveItem}
 				onPacked={handlePacked}
+				onReset={handleReset}
 			/>
 			<Stats items={items} />
 		</div>
-	);
-};
-
-const Logo = () => {
-	return <h1>🌴Itinerate🧳</h1>;
-};
-
-const Form = ({ onAddItems }) => {
-	// State for Controlled Elements
-	const [description, setDescription] = useState("");
-	const [quantity, setQuantity] = useState(1);
-
-	// Handle Form Submit
-	const handleSubmit = (event) => {
-		event.preventDefault();
-
-		// Ignore Submit if not input givem
-		if (!description) return;
-
-		// Create new item using state
-		const newItem = {
-			description,
-			quantity,
-			packed: false,
-			id: Date.now(),
-		};
-		onAddItems(newItem);
-
-		// Clear out values from state i.e. form elements
-		setDescription("");
-		setQuantity(1);
-	};
-
-	return (
-		<form className="add-form" onSubmit={handleSubmit}>
-			<h3>What Do You Need For Your Next Trip?? ✈️</h3>
-			<select
-				name=""
-				value={quantity}
-				onChange={(e) => setQuantity(e.target.value * 1)}
-			>
-				{Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
-					<option value={num} key={num}>
-						{num}
-					</option>
-				))}
-			</select>
-			<input
-				type="text"
-				placeholder="Item..."
-				value={description}
-				onChange={(e) => setDescription(e.target.value)}
-			/>
-			<button>Add</button>
-		</form>
-	);
-};
-
-const PackingList = ({ items, onDeleteItem, onPacked }) => {
-	return (
-		<div className="list">
-			<ul>
-				{items.map((item) => (
-					<Item
-						item={item}
-						key={item.id}
-						onDeleteItem={onDeleteItem}
-						onPacked={onPacked}
-					/>
-				))}
-			</ul>
-		</div>
-	);
-};
-
-const Item = ({ item, onDeleteItem, onPacked }) => {
-	return (
-		<li>
-			<input
-				type="checkbox"
-				value={item.packed}
-				onChange={() => onPacked(item.id)}
-			/>
-			<span style={item.packed ? { textDecoration: "line-through" } : {}}>
-				{item.quantity} {item.description}
-			</span>
-			<button onClick={() => onDeleteItem(item.id)}>❌</button>
-		</li>
-	);
-};
-
-const Stats = ({ items }) => {
-	if (!items.length)
-		return (
-			<p className="stats">
-				<em>Start Adding Some items to your Itinery😉!!</em>
-			</p>
-		);
-
-	const numItems = items.length;
-	const packedItems = items.filter((i) => i.packed).length;
-	const percent = Math.round((packedItems / numItems) * 100);
-
-	return (
-		<footer className="stats">
-			{percent === 100 ? (
-				<em>You Have Everything Packed! Let's Go!!✈️</em>
-			) : (
-				<em>
-					You Have {numItems} Items On Your List, {packedItems} Packed
-					Yet ({percent}%).
-				</em>
-			)}
-		</footer>
 	);
 };
 
